@@ -2,6 +2,7 @@ paper.install(window);
 paper.setup("canvas");
 
 window.Game = {};
+Game.DEBUG = true;
 Game.evt = {
     "rot_left": false,
     "rot_right": false,
@@ -10,7 +11,7 @@ Game.evt = {
 };
 Game.gfx = {};
 
-Game.onKeyDown = function(e) {
+Game.evt.onKeyDown = function(e) {
     switch(e.key) {
         case "left":
             Game.evt.rot_left = true;
@@ -27,7 +28,7 @@ Game.onKeyDown = function(e) {
     }
 }
 
-Game.onKeyUp = function(e) {
+Game.evt.onKeyUp = function(e) {
     switch(e.key) {
         case "left":
             Game.evt.rot_left = false;
@@ -44,7 +45,7 @@ Game.onKeyUp = function(e) {
     }
 }
 
-Game.onFrame = function(event) {
+Game.evt.onFrame = function(event) {
     // See if we need to rotate ourself
     if(Game.evt.rot_right)
         Game.ship.rotate(4);
@@ -75,27 +76,34 @@ var Images = {};
 $(document).ready(function() {
     // Load all of the images
     var i = 0;
-    function loadNext() {
-        if(ImageURL[i] == undefined) return finish();
+    function loadImages(callback) {
+        if(ImageURL[i] == undefined) return callback();
         Images[ImageURL[i]] = new Image();
         Images[ImageURL[i]].src = "/static/" + ImageURL;
         i += 1;
-        Images[ImageURL[i - 1]].onload = loadNext;
+        Images[ImageURL[i - 1]].onload = function() { loadImages(callback); };
     }
 
-    function finish() {
+    function startGame() {
         paper.setup("canvas");
         Star.generate();
         new Layer();
         Game.ship = new Ship(view.center, 1);
-        view.onFrame = Game.onFrame;
+        view.onFrame = Game.evt.onFrame;
         view.draw();
 
         var tool = new Tool();
-        tool.onKeyDown = Game.onKeyDown;
-        tool.onKeyUp = Game.onKeyUp;
+        tool.onKeyDown = Game.evt.onKeyDown;
+        tool.onKeyUp = Game.evt.onKeyUp;
     }
 
     // Initiate loading
-    loadNext();
+    if(Game.DEBUG) {
+        Game.server = "http://localhost:8080";
+        Game.nickname = "dev";
+    } else {
+        Game.server = prompt("Please provide the server address you'd like to connect to", "http://localhost:8080");
+        Game.nickname = prompt("What nickname would you like to use?", "User" + Math.floor(Math.random() * 25));
+    }
+    loadImages(startGame);
 });
