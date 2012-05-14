@@ -11,7 +11,7 @@ Game.evt = {
 };
 Game.gfx = {};
 
-window.ImageURL = ["ship.png"];
+window.ImageURL = ["ship.png", "thrust.gif"];
 window.Images = {};
 
 Game.evt.onKeyDown = function(e) {
@@ -25,6 +25,7 @@ Game.evt.onKeyDown = function(e) {
             break;
         case "up":
             Game.evt.accel = true;
+            Game.ship.showThrust();
             break;
         case "down":
             Game.evt.deaccel = true;
@@ -43,6 +44,7 @@ Game.evt.onKeyUp = function(e) {
             break;
         case "up":
             Game.evt.accel = false;
+            Game.ship.hideThrust();
             break;
         case "down":
             Game.evt.deaccel = false;
@@ -81,7 +83,7 @@ $(document).ready(function() {
     function loadImages(callback) {
         if(ImageURL[i] == undefined) return callback();
         Images[ImageURL[i]] = new Image();
-        Images[ImageURL[i]].src = "/static/" + ImageURL;
+        Images[ImageURL[i]].src = "/static/" + ImageURL[i];
         i += 1;
         Images[ImageURL[i - 1]].onload = function() { loadImages(callback); };
     }

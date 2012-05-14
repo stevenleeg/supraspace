@@ -46,6 +46,9 @@ var Ship = function(pos, type) {
         this.deg += deg;
         if(this.deg >= 360) this.deg -= 360;
         this.elem.rotate(deg);
+        if(this.thruster) {
+            this.thruster.rotate(deg, this.elem.position);
+        }
     }
     
     this.accelerate = function(accel, rev) {
@@ -56,5 +59,19 @@ var Ship = function(pos, type) {
         }
         this.velocity = this.velocity.add(accel);
         if(this.velocity.length > this.top_speed) this.velocity.length = this.top_speed;
+    }
+
+    this.showThrust = function() {
+        if(this.thruster != undefined) return;
+        var thrust = new Raster(Images['thrust.gif']);
+        thrust.position = this.elem.position.add(new Point(0, 27));
+        thrust.rotate(180);
+        thrust.rotate(this.deg, this.elem.position);
+        this.thruster = thrust;
+    }
+
+    this.hideThrust = function() {
+        this.thruster.remove();
+        delete this.thruster;
     }
 }
