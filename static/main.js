@@ -11,6 +11,9 @@ Game.evt = {
 };
 Game.gfx = {};
 
+window.ImageURL = ["ship.png"];
+window.Images = {};
+
 Game.evt.onKeyDown = function(e) {
     switch(e.key) {
         case "left":
@@ -69,9 +72,6 @@ Game.evt.onFrame = function(event) {
         }
     }
 }
-
-var ImageURL = ["ship.png"];
-var Images = {};
 
 $(document).ready(function() {
     // Load all of the images
