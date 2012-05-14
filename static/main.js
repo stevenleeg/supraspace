@@ -15,6 +15,7 @@ window.ImageURL = ["ship.png"];
 window.Images = {};
 
 Game.evt.onKeyDown = function(e) {
+    e.preventDefault();
     switch(e.key) {
         case "left":
             Game.evt.rot_left = true;
@@ -32,6 +33,7 @@ Game.evt.onKeyDown = function(e) {
 }
 
 Game.evt.onKeyUp = function(e) {
+    e.preventDefault();
     switch(e.key) {
         case "left":
             Game.evt.rot_left = false;
