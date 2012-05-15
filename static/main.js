@@ -83,6 +83,10 @@ Game.evt.onFrame = function(event) {
         for(var i in Game.gfx.stars) {
             Game.gfx.stars[i].move(Game.ship.velocity);
         }
+
+        // Friction! This isn't realistic but it's good for
+        // development right now
+        if(Game.DEBUG) Game.ship.velocity.length -= .01;
     }
 }
 
