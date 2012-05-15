@@ -1,7 +1,10 @@
 paper.install(window);
 paper.setup("canvas");
 
-window.Game = {};
+window.Game = {
+    projectiles: [],
+    gfx: { stars: [] }
+};
 Game.DEBUG = true;
 Game.evt = {
     "rot_left": false,
@@ -9,7 +12,6 @@ Game.evt = {
     "accel": false,
     "deaccel": false
 };
-Game.gfx = {};
 
 window.ImageURL = ["ship.png", "thrust.gif"];
 window.Images = {};
@@ -49,6 +51,9 @@ Game.evt.onKeyUp = function(e) {
         case "down":
             Game.evt.deaccel = false;
             break;
+        case "w":
+            Game.ship.shoot();
+            break;
     }
 }
 
@@ -69,9 +74,13 @@ Game.evt.onFrame = function(event) {
             angle: Game.ship.deg
         }), true);
 
+    for(var i in Game.projectiles) {
+        Game.projectiles[i].move();
+    }
+    
     // If we're moving, move the stars
     if(Game.ship.velocity.length > 0) {
-        for(i in Game.gfx.stars) {
+        for(var i in Game.gfx.stars) {
             Game.gfx.stars[i].move(Game.ship.velocity);
         }
     }

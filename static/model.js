@@ -32,6 +32,27 @@ Star.generate = function() {
     }
 }
 
+var Projectile = function(origin, type) {
+    this.origin = origin;
+    this.direction = origin.deg - 90;
+    if(this.direction < 0) this.direction += 360;
+
+    // Render the little bugger
+    this.elem = new Path.Circle(origin.elem.position, 2);
+    this.elem.fillColor = "#FF0000";
+    Game.projectiles.push(this);
+
+    this.move = function() {
+        this.elem.position = this.elem.position.add(new Point({length: 15, angle: this.direction}));
+        if(this.elem.position.getDistance(this.origin.elem.position, false) > 350) this.remove();
+    }
+
+    this.remove = function() {
+        this.elem.remove();
+        Game.projectiles.splice(Game.projectiles.indexOf(this), 1);
+    }
+}
+
 var Ship = function(pos, type) {
     this.type = type;
     this.velocity = new Point({length: 0, angle: 0});
@@ -73,5 +94,10 @@ var Ship = function(pos, type) {
     this.hideThrust = function() {
         this.thruster.remove();
         delete this.thruster;
+    }
+
+    this.shoot = function(type) {
+        console.log("Shooting!");
+        new Projectile(this);
     }
 }
