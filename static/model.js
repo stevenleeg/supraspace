@@ -38,7 +38,9 @@ var Projectile = function(origin, type) {
     if(this.direction < 0) this.direction += 360;
 
     // Render the little bugger
-    this.elem = new Path.Circle(origin.elem.position, 2);
+    var position = this.origin.elem.position.subtract(new Point(0, 5));
+    this.elem = new Path.Circle(position, 2);
+    this.elem.rotate(this.direction, this.origin.position);
     this.elem.fillColor = "#FF0000";
     Game.projectiles.push(this);
 

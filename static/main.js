@@ -32,6 +32,9 @@ Game.evt.onKeyDown = function(e) {
         case "down":
             Game.evt.deaccel = true;
             break;
+        case "w":
+            Game.ship.shoot();
+            break;
     }
 }
 
@@ -51,9 +54,6 @@ Game.evt.onKeyUp = function(e) {
         case "down":
             Game.evt.deaccel = false;
             break;
-        case "w":
-            Game.ship.shoot();
-            break;
     }
 }
 
@@ -65,12 +65,12 @@ Game.evt.onFrame = function(event) {
         Game.ship.rotate(-4);
     if(Game.evt.accel)
         Game.ship.accelerate(new Point({
-            length: .2,
+            length: .1,
             angle: Game.ship.deg
         }));
     if(Game.evt.deaccel)
         Game.ship.accelerate(new Point({
-            length: .2,
+            length: .1,
             angle: Game.ship.deg
         }), true);
 
