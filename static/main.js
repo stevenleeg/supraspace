@@ -14,6 +14,8 @@ Game.evt = {
 };
 
 window.ImageURL = ["ship.png", "thrust.gif"];
+window.SoundURL = ["thrust.wav"]
+window.Sounds = {};
 window.Images = {};
 
 Game.evt.onKeyDown = function(e) {
@@ -28,6 +30,7 @@ Game.evt.onKeyDown = function(e) {
         case "up":
             Game.evt.accel = true;
             Game.ship.showThrust();
+            Game.loopSound("thrust.wav");
             break;
         case "down":
             Game.evt.deaccel = true;
@@ -50,6 +53,7 @@ Game.evt.onKeyUp = function(e) {
         case "up":
             Game.evt.accel = false;
             Game.ship.hideThrust();
+            Game.stopSound("thrust.wav");
             break;
         case "down":
             Game.evt.deaccel = false;
@@ -58,19 +62,20 @@ Game.evt.onKeyUp = function(e) {
 }
 
 Game.evt.onFrame = function(event) {
+    if(Game.offFrame) return;
     // See if we need to rotate ourself
     if(Game.evt.rot_right)
-        Game.ship.rotate(4);
+        Game.ship.rotate(3);
     if(Game.evt.rot_left)
-        Game.ship.rotate(-4);
+        Game.ship.rotate(-3);
     if(Game.evt.accel)
         Game.ship.accelerate(new Point({
-            length: .1,
+            length: .07,
             angle: Game.ship.deg
         }));
     if(Game.evt.deaccel)
         Game.ship.accelerate(new Point({
-            length: .1,
+            length: .07,
             angle: Game.ship.deg
         }), true);
 
@@ -83,11 +88,31 @@ Game.evt.onFrame = function(event) {
         for(var i in Game.gfx.stars) {
             Game.gfx.stars[i].move(Game.ship.velocity);
         }
+        Game.offFrame = true;
+        view.scrollBy(Game.ship.velocity);
+        Game.ship.moveTo(view.center);
+        Game.offFrame = false;
 
         // Friction! This isn't realistic but it's good for
         // development right now
         if(Game.DEBUG) Game.ship.velocity.length -= .01;
     }
+}
+
+Game.loopSoundEvent = function() {
+    this.currentTime = 0;
+    this.play();
+}
+
+Game.loopSound = function(sound) {
+    Sounds[sound].currentTime = 0;
+    Sounds[sound].addEventListener('ended', Game.loopSoundEvent, false);
+    Sounds[sound].play();
+}
+
+Game.stopSound = function(sound) {
+    Sounds[sound].pause();
+    Sounds[sound].removeEventListener('ended', Game.loopSoundEvent, false);
 }
 
 $(document).ready(function() {
@@ -96,9 +121,17 @@ $(document).ready(function() {
     function loadImages(callback) {
         if(ImageURL[i] == undefined) return callback();
         Images[ImageURL[i]] = new Image();
-        Images[ImageURL[i]].src = "/static/" + ImageURL[i];
+        Images[ImageURL[i]].src = "/static/img/" + ImageURL[i];
         i += 1;
         Images[ImageURL[i - 1]].onload = function() { loadImages(callback); };
+    }
+
+    function loadSounds(callback) {
+        if(SoundURL[i] == undefined) return callback();
+        Sounds[SoundURL[i]] = new Audio();
+        Sounds[SoundURL[i]].addEventListener('canplaythrough', function() { loadSounds(callback); }, false);
+        Sounds[SoundURL[i]].src = "/static/sfx/" + SoundURL[i];
+        i += 1;
     }
 
     function startGame() {
@@ -122,5 +155,5 @@ $(document).ready(function() {
         Game.server = prompt("Please provide the server address you'd like to connect to", "http://localhost:8080");
         Game.nickname = prompt("What nickname would you like to use?", "User" + Math.floor(Math.random() * 25));
     }
-    loadImages(startGame);
+    loadImages(function() { i=0; loadSounds(startGame); });
 });

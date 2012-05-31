@@ -2,20 +2,15 @@ var Star = function(pt, radius) {
     this.elem = new Path.Circle(pt, radius);
     this.radius = radius;
 
-    this.move = function(speed) {
-        var nspeed = this.elem.position.add(speed);
-        this.elem.position = nspeed;
-        delete nspeed;
-
-        if(this.elem.bounds.left > view.size.width)
-            this.elem.position.x = 0;
-        if(this.elem.bounds.right < 0)
-            this.elem.position.x = view.size.width;
-
-        if(this.elem.bounds.top > view.size.height)
-            this.elem.position.y = 0;
-        if(this.elem.bounds.bottom < 0)
-            this.elem.position.y = view.size.height;
+    this.move = function() {
+        if(this.elem.bounds.bottom < view.bounds.top)
+            this.elem.position.y = view.bounds.bottom;
+        if(this.elem.bounds.top > view.bounds.bottom)
+            this.elem.position.y = view.bounds.top;
+        if(this.elem.bounds.right < view.bounds.left)
+            this.elem.position.x = view.bounds.right;
+        if(this.elem.bounds.left > view.bounds.right)
+            this.elem.position.x = view.bounds.left;
     }
 }
 
@@ -59,11 +54,18 @@ var Ship = function(pos, type) {
     this.type = type;
     this.velocity = new Point({length: 0, angle: 0});
     this.deg = 0;
-    this.top_speed = 5;
+    this.top_speed = 4;
 
     this.elem = new Raster(Images['ship.png']);
     this.elem.size = new Size(32, 32);
     this.elem.position = pos;
+
+    this.moveTo = function(point) {
+        this.elem.position = point;
+        if(this.thruster) {
+            this.thruster.position = point.add(new Point(0, 27));
+        }
+    }
 
     this.rotate = function(deg) {
         this.deg += deg;
@@ -80,7 +82,7 @@ var Ship = function(pos, type) {
             accel.angle += 180;
             if(accel.angle >= 360) accel.angle -= 360;
         }
-        this.velocity = this.velocity.add(accel);
+        this.velocity = this.velocity.add(accel.multiply(-1));
         if(this.velocity.length > this.top_speed) this.velocity.length = this.top_speed;
     }
 
