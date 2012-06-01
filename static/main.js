@@ -88,10 +88,21 @@ Game.evt.onFrame = function(event) {
         for(var i in Game.gfx.stars) {
             Game.gfx.stars[i].move(Game.ship.velocity);
         }
+
         Game.offFrame = true;
-        view.scrollBy(Game.ship.velocity);
-        Game.ship.moveTo(view.center);
+        var pt = Game.ship.elem.position.clone();
+        pt.x -= view.size.width / 2;
+        pt.y -= view.size.height / 2;
+        var bound = new Rectangle(pt, view.size);
+
+        if(bound.left > 0) {
+            view.scrollBy(new Point(Game.ship.velocity.x, 0));
+        }
+        if(bound.top > 0) {
+            view.scrollBy(new Point(0, Game.ship.velocity.y));
+        }
         Game.offFrame = false;
+        Game.ship.move();
 
         // Friction! This isn't realistic but it's good for
         // development right now

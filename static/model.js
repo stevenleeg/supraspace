@@ -63,7 +63,29 @@ var Ship = function(pos, type) {
     this.moveTo = function(point) {
         this.elem.position = point;
         if(this.thruster) {
-            this.thruster.position = point.add(new Point(0, 27));
+            var pos = 
+            this.thruster.position = point.add(new Point(0, 27)).rotate(this.deg, this.elem.position);
+        }
+    }
+
+    this.move = function() {
+        var pt = this.elem.position.add(this.velocity);
+        if(pt.x > 10)
+            this.elem.position.x = pt.x;
+        else
+            this.velocity.x = -this.velocity.x;
+
+        if(pt.y > 10)
+            this.elem.position.y = pt.y;
+        else
+            this.velocity.y = -this.velocity.y;
+
+        if(this.thruster) {
+            pt = this.thruster.position.add(this.velocity);
+            if(pt.x > 0)
+                this.thruster.position.x = pt.x;
+            if(pt.y > 0)
+                this.thruster.position.y = pt.y;
         }
     }
 
