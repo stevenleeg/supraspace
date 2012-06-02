@@ -1,170 +1,26 @@
 paper.install(window);
 paper.setup("canvas");
 
-window.Game = {
-    projectiles: [],
-    gfx: { stars: [] }
-};
-Game.DEBUG = true;
-Game.evt = {
-    "rot_left": false,
-    "rot_right": false,
-    "accel": false,
-    "deaccel": false
-};
-
-window.ImageURL = ["ship.png", "thrust.gif"];
-window.SoundURL = ["thrust.wav"]
-window.Sounds = {};
+window.IMAGE_URLS = ["ship.png", "thrust.gif"];
 window.Images = {};
-
-Game.evt.onKeyDown = function(e) {
-    e.preventDefault();
-    switch(e.key) {
-        case "left":
-            Game.evt.rot_left = true;
-            break;
-        case "right":
-            Game.evt.rot_right = true;
-            break;
-        case "up":
-            Game.evt.accel = true;
-            Game.ship.showThrust();
-            Game.loopSound("thrust.wav");
-            break;
-        case "down":
-            Game.evt.deaccel = true;
-            break;
-        case "w":
-            Game.ship.shoot();
-            break;
-    }
-}
-
-Game.evt.onKeyUp = function(e) {
-    e.preventDefault();
-    switch(e.key) {
-        case "left":
-            Game.evt.rot_left = false;
-            break;
-        case "right":
-            Game.evt.rot_right = false;
-            break;
-        case "up":
-            Game.evt.accel = false;
-            Game.ship.hideThrust();
-            Game.stopSound("thrust.wav");
-            break;
-        case "down":
-            Game.evt.deaccel = false;
-            break;
-    }
-}
-
-Game.evt.onFrame = function(event) {
-    if(Game.offFrame) return;
-    // See if we need to rotate ourself
-    if(Game.evt.rot_right)
-        Game.ship.rotate(3);
-    if(Game.evt.rot_left)
-        Game.ship.rotate(-3);
-    if(Game.evt.accel)
-        Game.ship.accelerate(new Point({
-            length: .07,
-            angle: Game.ship.deg
-        }));
-    if(Game.evt.deaccel)
-        Game.ship.accelerate(new Point({
-            length: .07,
-            angle: Game.ship.deg
-        }), true);
-
-    for(var i in Game.projectiles) {
-        Game.projectiles[i].move();
-    }
-    
-    // If we're moving, move the stars
-    if(Game.ship.velocity.length > 0) {
-        for(var i in Game.gfx.stars) {
-            Game.gfx.stars[i].move(Game.ship.velocity);
-        }
-
-        Game.offFrame = true;
-        var pt = Game.ship.elem.position.clone();
-        pt.x -= view.size.width / 2;
-        pt.y -= view.size.height / 2;
-        var bound = new Rectangle(pt, view.size);
-
-        if(bound.left > 0) {
-            view.scrollBy(new Point(Game.ship.velocity.x, 0));
-        }
-        if(bound.top > 0) {
-            view.scrollBy(new Point(0, Game.ship.velocity.y));
-        }
-        Game.offFrame = false;
-        Game.ship.move();
-
-        // Friction! This isn't realistic but it's good for
-        // development right now
-        if(Game.DEBUG) Game.ship.velocity.length -= .01;
-    }
-}
-
-Game.loopSoundEvent = function() {
-    this.currentTime = 0;
-    this.play();
-}
-
-Game.loopSound = function(sound) {
-    Sounds[sound].currentTime = 0;
-    Sounds[sound].addEventListener('ended', Game.loopSoundEvent, false);
-    Sounds[sound].play();
-}
-
-Game.stopSound = function(sound) {
-    Sounds[sound].pause();
-    Sounds[sound].removeEventListener('ended', Game.loopSoundEvent, false);
-}
+window.current_game = false;
 
 $(document).ready(function() {
     // Load all of the images
     var i = 0;
     function loadImages(callback) {
-        if(ImageURL[i] == undefined) return callback();
-        Images[ImageURL[i]] = new Image();
-        Images[ImageURL[i]].src = "/static/img/" + ImageURL[i];
+        if(IMAGE_URLS[i] == undefined) return callback();
+        Images[IMAGE_URLS[i]] = new Image();
+        Images[IMAGE_URLS[i]].src = "/static/img/" + IMAGE_URLS[i];
         i += 1;
-        Images[ImageURL[i - 1]].onload = function() { loadImages(callback); };
+        Images[IMAGE_URLS[i - 1]].onload = function() { loadImages(callback); };
     }
 
-    function loadSounds(callback) {
-        if(SoundURL[i] == undefined) return callback();
-        Sounds[SoundURL[i]] = new Audio();
-        Sounds[SoundURL[i]].addEventListener('canplaythrough', function() { loadSounds(callback); }, false);
-        Sounds[SoundURL[i]].src = "/static/sfx/" + SoundURL[i];
-        i += 1;
-    }
-
-    function startGame() {
-        paper.setup("canvas");
-        Star.generate();
-        new Layer();
-        Game.ship = new Ship(view.center, 1);
-        view.onFrame = Game.evt.onFrame;
-        view.draw();
-
-        var tool = new Tool();
-        tool.onKeyDown = Game.evt.onKeyDown;
-        tool.onKeyUp = Game.evt.onKeyUp;
+    function finishLoad() {
+        current_game = new Game(true);
+        current_game.initGame();
     }
 
     // Initiate loading
-    if(Game.DEBUG) {
-        Game.server = "http://localhost:8080";
-        Game.nickname = "dev";
-    } else {
-        Game.server = prompt("Please provide the server address you'd like to connect to", "http://localhost:8080");
-        Game.nickname = prompt("What nickname would you like to use?", "User" + Math.floor(Math.random() * 25));
-    }
-    loadImages(function() { i=0; loadSounds(startGame); });
+    loadImages(finishLoad);
 });

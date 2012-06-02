@@ -14,8 +14,7 @@ var Star = function(pt, radius) {
     }
 }
 
-Star.generate = function() {
-    Game.gfx.stars = [];
+Star.generate = function(game) {
     var n = Math.random() * (30 - 20) + 20;
     for(var i=0; i < n; i++) {
         var size = Math.random() * (3 - .5) + .5;
@@ -23,11 +22,11 @@ Star.generate = function() {
         var y = Math.random() * view.bounds.bottomRight.y
         var star = new Star(new Point(x, y), size);
         star.elem.fillColor = "#FFF";
-        Game.gfx.stars.push(star);
+        game.stars.push(star);
     }
 }
 
-var Projectile = function(origin, type) {
+var Projectile = function(game, origin, type) {
     this.origin = origin;
     this.direction = origin.deg - 90;
     if(this.direction < 0) this.direction += 360;
@@ -37,7 +36,7 @@ var Projectile = function(origin, type) {
     this.elem = new Path.Circle(position, 2);
     this.elem.rotate(this.direction, this.origin.position);
     this.elem.fillColor = "#FF0000";
-    Game.projectiles.push(this);
+    game.projectiles.push(this);
 
     this.move = function() {
         this.elem.position = this.elem.position.add(new Point({length: 15, angle: this.direction}));
