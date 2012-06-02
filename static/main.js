@@ -1,5 +1,4 @@
 paper.install(window);
-paper.setup("canvas");
 
 window.IMAGE_URLS = ["ship.png", "thrust.gif"];
 window.Images = {};
