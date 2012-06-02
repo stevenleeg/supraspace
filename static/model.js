@@ -27,6 +27,7 @@ Star.generate = function(game) {
 }
 
 var Projectile = function(game, origin, type) {
+    this.game = game;
     this.origin = origin;
     this.direction = origin.deg - 90;
     if(this.direction < 0) this.direction += 360;
@@ -36,7 +37,7 @@ var Projectile = function(game, origin, type) {
     this.elem = new Path.Circle(position, 2);
     this.elem.rotate(this.direction, this.origin.position);
     this.elem.fillColor = "#FF0000";
-    game.projectiles.push(this);
+    this.game.projectiles.push(this);
 
     this.move = function() {
         this.elem.position = this.elem.position.add(new Point({length: 15, angle: this.direction}));
@@ -45,7 +46,7 @@ var Projectile = function(game, origin, type) {
 
     this.remove = function() {
         this.elem.remove();
-        Game.projectiles.splice(Game.projectiles.indexOf(this), 1);
+        this.game.projectiles.splice(this.game.projectiles.indexOf(this), 1);
     }
 }
 
@@ -122,7 +123,6 @@ var Ship = function(pos, type) {
     }
 
     this.shoot = function(type) {
-        console.log("Shooting!");
-        new Projectile(this);
+        new Projectile(current_game, this);
     }
 }
