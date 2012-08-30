@@ -93,7 +93,7 @@ var Game = function(debug) {
         // If we're moving, move the stars
         if(current_game.ship.velocity.length > 0) {
             for(var i in current_game.stars) {
-                current_game.stars[i].move(current_game.ship.velocity);
+                current_game.stars[i].move();
             }
 
             current_game.evt.offFrame = true;
